@@ -1,0 +1,265 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		94AF471515F2E13400250F3F /* Boundaries2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF470915F2E13400250F3F /* Boundaries2D.cpp */; };
+		94AF471615F2E13400250F3F /* Boundaries2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF470A15F2E13400250F3F /* Boundaries2D.h */; };
+		94AF471715F2E13400250F3F /* HierarchicalTransform2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF470B15F2E13400250F3F /* HierarchicalTransform2D.cpp */; };
+		94AF471815F2E13400250F3F /* HierarchicalTransform2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF470C15F2E13400250F3F /* HierarchicalTransform2D.h */; };
+		94AF471915F2E13400250F3F /* MechanicalTransform2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF470D15F2E13400250F3F /* MechanicalTransform2D.cpp */; };
+		94AF471A15F2E13400250F3F /* MechanicalTransform2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF470E15F2E13400250F3F /* MechanicalTransform2D.h */; };
+		94AF471B15F2E13400250F3F /* Physics2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF470F15F2E13400250F3F /* Physics2D.cpp */; };
+		94AF471C15F2E13400250F3F /* Physics2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF471015F2E13400250F3F /* Physics2D.h */; };
+		94AF471D15F2E13400250F3F /* StaticTransform2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF471115F2E13400250F3F /* StaticTransform2D.cpp */; };
+		94AF471E15F2E13400250F3F /* StaticTransform2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF471215F2E13400250F3F /* StaticTransform2D.h */; };
+		94AF471F15F2E13400250F3F /* Transform2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94AF471315F2E13400250F3F /* Transform2D.cpp */; };
+		94AF472015F2E13400250F3F /* Transform2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94AF471415F2E13400250F3F /* Transform2D.h */; };
+		94F1A53D161FE8BF006758A5 /* Renderer2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 94F1A53A161FE8BF006758A5 /* Renderer2D.h */; };
+		94F1A53E161FE8BF006758A5 /* RendererLuaBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94F1A53B161FE8BF006758A5 /* RendererLuaBinding.cpp */; };
+		94F1A53F161FE8BF006758A5 /* RendererLuaBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 94F1A53C161FE8BF006758A5 /* RendererLuaBinding.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		94AF46E415F2E09A00250F3F /* libKEngine2D.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKEngine2D.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		94AF470915F2E13400250F3F /* Boundaries2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Boundaries2D.cpp; sourceTree = "<group>"; };
+		94AF470A15F2E13400250F3F /* Boundaries2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Boundaries2D.h; sourceTree = "<group>"; };
+		94AF470B15F2E13400250F3F /* HierarchicalTransform2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HierarchicalTransform2D.cpp; sourceTree = "<group>"; };
+		94AF470C15F2E13400250F3F /* HierarchicalTransform2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HierarchicalTransform2D.h; sourceTree = "<group>"; };
+		94AF470D15F2E13400250F3F /* MechanicalTransform2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MechanicalTransform2D.cpp; sourceTree = "<group>"; };
+		94AF470E15F2E13400250F3F /* MechanicalTransform2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MechanicalTransform2D.h; sourceTree = "<group>"; };
+		94AF470F15F2E13400250F3F /* Physics2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Physics2D.cpp; sourceTree = "<group>"; };
+		94AF471015F2E13400250F3F /* Physics2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Physics2D.h; sourceTree = "<group>"; };
+		94AF471115F2E13400250F3F /* StaticTransform2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StaticTransform2D.cpp; sourceTree = "<group>"; };
+		94AF471215F2E13400250F3F /* StaticTransform2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticTransform2D.h; sourceTree = "<group>"; };
+		94AF471315F2E13400250F3F /* Transform2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Transform2D.cpp; sourceTree = "<group>"; };
+		94AF471415F2E13400250F3F /* Transform2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Transform2D.h; sourceTree = "<group>"; };
+		94F1A53A161FE8BF006758A5 /* Renderer2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer2D.h; sourceTree = "<group>"; };
+		94F1A53B161FE8BF006758A5 /* RendererLuaBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RendererLuaBinding.cpp; sourceTree = "<group>"; };
+		94F1A53C161FE8BF006758A5 /* RendererLuaBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RendererLuaBinding.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		94AF46E115F2E09A00250F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		94AF46D915F2E09A00250F3F = {
+			isa = PBXGroup;
+			children = (
+				94F1A53A161FE8BF006758A5 /* Renderer2D.h */,
+				94F1A53B161FE8BF006758A5 /* RendererLuaBinding.cpp */,
+				94F1A53C161FE8BF006758A5 /* RendererLuaBinding.h */,
+				94AF470915F2E13400250F3F /* Boundaries2D.cpp */,
+				94AF470A15F2E13400250F3F /* Boundaries2D.h */,
+				94AF470B15F2E13400250F3F /* HierarchicalTransform2D.cpp */,
+				94AF470C15F2E13400250F3F /* HierarchicalTransform2D.h */,
+				94AF470D15F2E13400250F3F /* MechanicalTransform2D.cpp */,
+				94AF470E15F2E13400250F3F /* MechanicalTransform2D.h */,
+				94AF470F15F2E13400250F3F /* Physics2D.cpp */,
+				94AF471015F2E13400250F3F /* Physics2D.h */,
+				94AF471115F2E13400250F3F /* StaticTransform2D.cpp */,
+				94AF471215F2E13400250F3F /* StaticTransform2D.h */,
+				94AF471315F2E13400250F3F /* Transform2D.cpp */,
+				94AF471415F2E13400250F3F /* Transform2D.h */,
+				94AF46E515F2E09A00250F3F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		94AF46E515F2E09A00250F3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				94AF46E415F2E09A00250F3F /* libKEngine2D.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		94AF46E215F2E09A00250F3F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94AF471615F2E13400250F3F /* Boundaries2D.h in Headers */,
+				94AF471815F2E13400250F3F /* HierarchicalTransform2D.h in Headers */,
+				94AF471A15F2E13400250F3F /* MechanicalTransform2D.h in Headers */,
+				94AF471C15F2E13400250F3F /* Physics2D.h in Headers */,
+				94AF471E15F2E13400250F3F /* StaticTransform2D.h in Headers */,
+				94AF472015F2E13400250F3F /* Transform2D.h in Headers */,
+				94F1A53D161FE8BF006758A5 /* Renderer2D.h in Headers */,
+				94F1A53F161FE8BF006758A5 /* RendererLuaBinding.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		94AF46E315F2E09A00250F3F /* KEngine2D */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 94AF46E815F2E09A00250F3F /* Build configuration list for PBXNativeTarget "KEngine2D" */;
+			buildPhases = (
+				94AF46E015F2E09A00250F3F /* Sources */,
+				94AF46E115F2E09A00250F3F /* Frameworks */,
+				94AF46E215F2E09A00250F3F /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KEngine2D;
+			productName = KEngine2D;
+			productReference = 94AF46E415F2E09A00250F3F /* libKEngine2D.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		94AF46DB15F2E09A00250F3F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+			};
+			buildConfigurationList = 94AF46DE15F2E09A00250F3F /* Build configuration list for PBXProject "KEngine2D" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 94AF46D915F2E09A00250F3F;
+			productRefGroup = 94AF46E515F2E09A00250F3F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				94AF46E315F2E09A00250F3F /* KEngine2D */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		94AF46E015F2E09A00250F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94AF471515F2E13400250F3F /* Boundaries2D.cpp in Sources */,
+				94AF471715F2E13400250F3F /* HierarchicalTransform2D.cpp in Sources */,
+				94AF471915F2E13400250F3F /* MechanicalTransform2D.cpp in Sources */,
+				94AF471B15F2E13400250F3F /* Physics2D.cpp in Sources */,
+				94AF471D15F2E13400250F3F /* StaticTransform2D.cpp in Sources */,
+				94AF471F15F2E13400250F3F /* Transform2D.cpp in Sources */,
+				94F1A53E161FE8BF006758A5 /* RendererLuaBinding.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		94AF46E615F2E09A00250F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		94AF46E715F2E09A00250F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		94AF46E915F2E09A00250F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				HEADER_SEARCH_PATHS = ../KEngineCore;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		94AF46EA15F2E09A00250F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				HEADER_SEARCH_PATHS = ../KEngineCore;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		94AF46DE15F2E09A00250F3F /* Build configuration list for PBXProject "KEngine2D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				94AF46E615F2E09A00250F3F /* Debug */,
+				94AF46E715F2E09A00250F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		94AF46E815F2E09A00250F3F /* Build configuration list for PBXNativeTarget "KEngine2D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				94AF46E915F2E09A00250F3F /* Debug */,
+				94AF46EA15F2E09A00250F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 94AF46DB15F2E09A00250F3F /* Project object */;
+}
