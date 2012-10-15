@@ -83,7 +83,7 @@
     <ClInclude Include="Transform2D.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Lua\Lua.vcxproj">
+    <ProjectReference Include="..\KEngineCore\Lua\Lua.vcxproj">
       <Project>{162d249d-152e-42ad-9d7c-fc40ca25705b}</Project>
     </ProjectReference>
   </ItemGroup>
