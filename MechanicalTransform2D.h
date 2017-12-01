@@ -16,9 +16,10 @@ namespace KEngine2D
 
 		void Update(double fTime);
 
-		virtual Point GetTranslation() const;
-		virtual double GetRotation() const;
-		virtual double GetScale() const;
+		virtual Point GetTranslation() const override;
+		virtual double GetRotation() const override;
+		virtual double GetScale() const override;
+        virtual const Matrix& GetAsMatrix() const override;
 
 		void SetCurrentTransform(StaticTransform const & currentTransform);
 		void SetVelocity(Point const & velocity);

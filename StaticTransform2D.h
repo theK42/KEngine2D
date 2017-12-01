@@ -12,6 +12,7 @@ namespace KEngine2D
 		virtual Point GetTranslation() const;
 		virtual double GetRotation() const;
 		virtual double GetScale() const;
+        virtual const Matrix & GetAsMatrix() const;
 	
 		void SetTranslation(Point const & translation);
 		void SetRotation(double rotation);
@@ -20,8 +21,11 @@ namespace KEngine2D
 		static StaticTransform const & Identity();
 
 	private:
+        void UpdateMatrix();
+        
 		Point mTranslation;
 		double mRotation;
 		double mScale;
+        Matrix mMatrix;
 	};
 }

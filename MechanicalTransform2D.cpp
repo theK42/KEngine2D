@@ -54,6 +54,11 @@ double KEngine2D::MechanicalTransform::GetScale() const
 	return mCurrentTransform.GetScale();
 }
 
+const KEngine2D::Matrix& KEngine2D::MechanicalTransform::GetAsMatrix() const
+{
+    return mCurrentTransform.GetAsMatrix();
+}
+
 void KEngine2D::MechanicalTransform::SetCurrentTransform( StaticTransform const & currentTransform )
 {
 	mCurrentTransform = currentTransform;

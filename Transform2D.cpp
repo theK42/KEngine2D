@@ -1,6 +1,17 @@
 #include "Transform2D.h"
 #include <cmath>
 
+const KEngine2D::Matrix & KEngine2D::Matrix::Identity()
+{
+    static Matrix identity = {{
+        {1,0,0,0},
+        {0,1,0,0},
+        {0,0,1,0},
+        {0,0,0,1}
+    }};
+    return identity;
+}
+
 KEngine2D::Point const & KEngine2D::Point::Origin()
 {
 	static Point origin = {0.0f, 0.0f};
@@ -64,3 +75,4 @@ KEngine2D::Point KEngine2D::Transform::Apply( Point const & point ) const
 	retVal.y += translation.y;
 	return retVal;
 }
+
