@@ -52,8 +52,8 @@ namespace KEngine2D
 		void RemoveBoundary(KEngine2D::BoundaryLine * boundary);
 
 	private:
-		std::list<PhysicalObject *> mPhysicalObjects;
-		std::list<KEngine2D::BoundaryLine *> mBoundaries;
+		std::vector<PhysicalObject *> mPhysicalObjects;
+		std::vector<KEngine2D::BoundaryLine *> mBoundaries;
 	};
 
 }

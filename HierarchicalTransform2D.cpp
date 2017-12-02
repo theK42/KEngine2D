@@ -78,6 +78,6 @@ void KEngine2D::HierarchicalTransform::SetLocalTransform( StaticTransform const 
 void KEngine2D::UpdatingHierarchicalTransform::Init( KEngineCore::Updater<HierarchicalTransform> * updater, Transform * parent, StaticTransform const & localTransform /*= StaticTransform::Identity()*/ )
 {
 	KEngineCore::Updating<HierarchicalTransform>::Init(updater);
-	mUpdatable.Init(parent, localTransform);
+    HierarchicalTransform::Init(parent, localTransform);
 	Start();
 }

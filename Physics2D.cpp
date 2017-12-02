@@ -179,16 +179,16 @@ void KEngine2D::PhysicsSystem::Deinit()
 
 void KEngine2D::PhysicsSystem::Update( double fTime )
 {
-	for (std::list<PhysicalObject *>::iterator it = mPhysicalObjects.begin(); it != mPhysicalObjects.end(); it++)
+	for (auto it = mPhysicalObjects.begin(); it != mPhysicalObjects.end(); it++)
 	{
 		PhysicalObject * physicalObject = *it;
 		bool foundCollision = false;
-		for (std::list<KEngine2D::BoundaryLine *>::const_iterator boundaryIt = mBoundaries.begin(); boundaryIt != mBoundaries.end() && !foundCollision; boundaryIt++)
+		for (auto boundaryIt = mBoundaries.begin(); boundaryIt != mBoundaries.end() && !foundCollision; boundaryIt++)
 		{
 			KEngine2D::BoundaryLine * boundaryLine = *boundaryIt;
 			foundCollision = physicalObject->CheckAndResolveCollision(*boundaryLine);
 		}
-		std::list<PhysicalObject *>::iterator otherIt = it;
+		auto otherIt = it;
 		for ( otherIt++; otherIt != mPhysicalObjects.end() && !foundCollision; otherIt++)
 		{
 			PhysicalObject * otherPhysicalObject = *otherIt;
@@ -204,7 +204,7 @@ void KEngine2D::PhysicsSystem::AddPhysicalObject( PhysicalObject * physicalObjec
 
 void KEngine2D::PhysicsSystem::RemovePhysicalObject( PhysicalObject * physicalObject )
 {
-	mPhysicalObjects.remove(physicalObject);
+	mPhysicalObjects.erase(remove(mPhysicalObjects.begin(), mPhysicalObjects.end(), physicalObject));
 }
 
 void KEngine2D::PhysicsSystem::AddBoundary( KEngine2D::BoundaryLine * boundary )
@@ -214,5 +214,5 @@ void KEngine2D::PhysicsSystem::AddBoundary( KEngine2D::BoundaryLine * boundary )
 
 void KEngine2D::PhysicsSystem::RemoveBoundary( KEngine2D::BoundaryLine * boundary )
 {
-	mBoundaries.remove(boundary);
+    mBoundaries.erase(remove(mBoundaries.begin(), mBoundaries.end(), boundary));
 }

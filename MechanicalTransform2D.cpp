@@ -87,6 +87,6 @@ double KEngine2D::MechanicalTransform::GetAngularVelocity() const
 void KEngine2D::UpdatingMechanicalTransform::Init( KEngineCore::Updater<MechanicalTransform> * updater, StaticTransform const & currentTransform /*= StaticTransform::Identity()*/, Point const & velocity /*= Point::Origin()*/, double angularVelocity /*= 0.0f*/ )
 {
 	KEngineCore::Updating<MechanicalTransform>::Init(updater);
-	mUpdatable.Init(currentTransform, velocity, angularVelocity);
+    MechanicalTransform::Init(currentTransform, velocity, angularVelocity);
 	Start();
 }
