@@ -30,7 +30,7 @@ void KEngine2D::HierarchicalTransform::Deinit()
 void KEngine2D::HierarchicalTransform::Update( double fTime )
 {
 	assert(mParent != nullptr);
-	Point globalTranslation = mParent->Apply(mLocalTransform.GetTranslation());
+	Point globalTranslation = mParent->LocalToGlobal(mLocalTransform.GetTranslation());
 	double globalRotation = mParent->GetRotation() + mLocalTransform.GetRotation();
 	double globalScale = mParent->GetScale() * mLocalTransform.GetScale();
 	mGlobalTransform.SetTranslation(globalTranslation);

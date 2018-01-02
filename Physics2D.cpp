@@ -12,13 +12,13 @@ KEngine2D::PhysicalObject::~PhysicalObject()
 	Deinit();
 }
 
-void KEngine2D::PhysicalObject::Init( PhysicsSystem * physicsSystem, MechanicalTransform * mechanics, std::vector<KEngine2D::BoundingCircle *> collisionVolumes, double mass )
+void KEngine2D::PhysicalObject::Init( PhysicsSystem * physicsSystem, MechanicalTransform * mechanics, BoundingArea * collisionVolume, double mass )
 {
 	assert(physicsSystem != 0);
 	assert(mechanics != 0);
 	assert(mass >= 0.0f); //Not supporting zero mass
 	mMechanics = mechanics;
-	mCollisionVolumes = collisionVolumes;
+	mCollisionVolume = collisionVolume;
 	mMass = mass;
 	mPhysicsSystem = physicsSystem;
 	physicsSystem->AddPhysicalObject(this);
@@ -26,14 +26,14 @@ void KEngine2D::PhysicalObject::Init( PhysicsSystem * physicsSystem, MechanicalT
 
 void KEngine2D::PhysicalObject::Deinit()
 {
-	if (mPhysicsSystem != 0)
+	if (mPhysicsSystem != nullptr)
 	{
 		mPhysicsSystem->RemovePhysicalObject(this);
 	}
-	mPhysicsSystem = 0;
+	mPhysicsSystem = nullptr;
 	mMass = 0.0f;
-	mMechanics = 0;
-	mCollisionVolumes.clear();
+	mMechanics = nullptr;
+	mCollisionVolume = nullptr;
 }
 
 double KEngine2D::PhysicalObject::GetMass() const
@@ -44,6 +44,20 @@ double KEngine2D::PhysicalObject::GetMass() const
 void KEngine2D::PhysicalObject::SetMass( double mass )
 {
 	mMass = mass;
+}
+
+
+double KEngine2D::PhysicalObject::GetMomentOfInertia() const
+{
+	return mCollisionVolume->GetAreaMomentOfInertia() * GetMass();
+}
+
+
+double KEngine2D::PhysicalObject::GetEnergy() const
+{
+	Point linearVelocity = mMechanics->GetVelocity();
+	double angularVelocity = mMechanics->GetAngularVelocity();
+	return 0.5f * ((GetMass() * DotProduct(linearVelocity, linearVelocity)) + (GetMomentOfInertia() * (angularVelocity * angularVelocity)));
 }
 
 KEngine2D::Point KEngine2D::PhysicalObject::GetVelocity( KEngine2D::Point const & offset /*= KEngine2D::Point::Origin()*/ ) const
@@ -60,29 +74,35 @@ void KEngine2D::PhysicalObject::ApplyImpulse( KEngine2D::Point const & impulse, 
 	//Decompose the impulse vector into the component parallel to the offset (which will be applied directly to velocity)
 	//and the component perpendicular to the offset (which will be applied to angular velocity)
 	KEngine2D::Point deltaVelocity = impulse;
-	double deltaAngularVelocity = 0.0f;
-
+	double deltaAngularVelocity = 0.3f * ((offset.x*impulse.y) - (offset.y*impulse.x)); //.3 is a complete hack, and doesn't really work
+	
 	if (offset.x != 0.0f || offset.y != 0.0f)
 	{
 		deltaVelocity = KEngine2D::Project(offset, impulse);
 
+
+/*
+		//Very confused what this math is
+		
+	
 		KEngine2D::Point deltaTangentialVelocity = impulse;
 		deltaTangentialVelocity -= deltaVelocity;
 		//Again, make sure not to divide by zero
 		if (offset.x != 0.0f)
 		{
-			deltaAngularVelocity = deltaTangentialVelocity.y / offset.x; 
+			deltaAngularVelocity += deltaTangentialVelocity.y / offset.x; 
 		}
-		else if (offset.y != 0.0f)
+		if (offset.y != 0.0f)
 		{
-			deltaAngularVelocity = - deltaTangentialVelocity.x / offset.y;
-		} 
+			deltaAngularVelocity -= deltaTangentialVelocity.x / offset.y;
+		} */
 	}
 
 	double invertedMass = 1.0f / mMass; //Safe because of assert in Init
+	double invertedMomentOfInertia = 1 / GetMomentOfInertia();
 
 	deltaVelocity *= invertedMass;
-	deltaAngularVelocity *= invertedMass;
+	deltaAngularVelocity *= invertedMomentOfInertia;
 
 	KEngine2D::Point velocity = mMechanics->GetVelocity();
 	double angularVelocity = mMechanics->GetAngularVelocity();
@@ -91,68 +111,62 @@ void KEngine2D::PhysicalObject::ApplyImpulse( KEngine2D::Point const & impulse, 
 	angularVelocity += deltaAngularVelocity;
 
 	mMechanics->SetVelocity(velocity);
-	mMechanics->SetAngularVelocity(deltaAngularVelocity);	
+	mMechanics->SetAngularVelocity(angularVelocity);	
 }
 
 bool KEngine2D::PhysicalObject::CheckAndResolveCollision( PhysicalObject & other )
 {
-	for (std::vector<KEngine2D::BoundingCircle *>::const_iterator it = mCollisionVolumes.begin(); it != mCollisionVolumes.end(); it++)
-	{
-		for (std::vector<KEngine2D::BoundingCircle *>::const_iterator otherIt = other.mCollisionVolumes.begin(); otherIt != other.mCollisionVolumes.end(); otherIt++)
-		{
-			KEngine2D::BoundingCircle * circle = *it;
-			KEngine2D::BoundingCircle * otherCircle = *otherIt;
+	CollisionInfo possibleCollision = mCollisionVolume->Collides(*other.mCollisionVolume);
+	if (possibleCollision.collides) {
+		Point offset = possibleCollision.collisionPoint;
+		offset -= mMechanics->GetTranslation();
+		Point otherOffset = possibleCollision.collisionPoint;
+		otherOffset -= other.mMechanics->GetTranslation();
+		Point collisionNormal = possibleCollision.collisionNormal;
+		double mass = GetMass();
+		double otherMass = other.GetMass();
+		double momentOfInertia = GetMomentOfInertia();
+		double otherMomentOfInertia = other.GetMomentOfInertia();
+		
+		KEngine2D::Point velocity = KEngine2D::Project(collisionNormal, GetVelocity(offset));
+		KEngine2D::Point otherVelocity = KEngine2D::Project(collisionNormal, other.GetVelocity(otherOffset));
 
-			if (circle->Collides(*otherCircle))	
-			{
-				KEngine2D::Point offset = circle->GetCenter();
-				offset -= mMechanics->GetTranslation();
+		double oldImpulseCoefficient = (2 * mass * otherMass) / (mass + otherMass); //masses asserted positive, total can't be zero
+		double offsetCrossNormal = (offset.x * collisionNormal.y) - (offset.y * collisionNormal.x);
+		double otherOffsetCrossNormal = (otherOffset.x * collisionNormal.y) - (otherOffset.y * collisionNormal.x);
 
-				KEngine2D::Point otherOffset = otherCircle->GetCenter();
-				otherOffset -= other.mMechanics->GetTranslation();
-
-				double mass = GetMass();
-				double otherMass = other.GetMass();
-
-				KEngine2D::Point collisionNormal = circle->GetCenter();
-				collisionNormal -= otherCircle->GetCenter();
-
-				KEngine2D::Point velocity = KEngine2D::Project(collisionNormal, GetVelocity(offset));
-				KEngine2D::Point otherVelocity = KEngine2D::Project(collisionNormal, other.GetVelocity(otherOffset));
-
-				double impulseCoefficient = (2 * mass * otherMass) / (mass + otherMass); //masses asserted positive, total can't be zero
-
-				KEngine2D::Point impulse = otherVelocity;
-				impulse -= velocity;
-				impulse *= impulseCoefficient;
-
-				KEngine2D::Point otherImpulse = -impulse;
-
-				ApplyImpulse(impulse, offset);
-				other.ApplyImpulse(otherImpulse, otherOffset);
-				return true; //Only resolve the first collision detected between these rigid bodies.  With simplistic method used here, it's too dangerous to do more.
-			}
-		}
+		double impulseCoefficient = 2 / ((1 / mass) + (1 / otherMass) + (offsetCrossNormal / momentOfInertia) + (otherOffsetCrossNormal / otherMomentOfInertia));
+		KEngine2D::Point impulse = otherVelocity;
+		impulse -= velocity;
+		impulse *= impulseCoefficient;
+		KEngine2D::Point otherImpulse = -impulse;
+		float kinetic1 = GetEnergy() + other.GetEnergy();
+		ApplyImpulse(impulse, offset);
+		other.ApplyImpulse(otherImpulse, otherOffset);
+		float kinetic2 = GetEnergy() + other.GetEnergy();
+		//assert(kinetic2 < 1.1 * kinetic1 && kinetic1 < 1.1 * kinetic2);
+		return true;
 	}
 	return false;
 }
 
 bool KEngine2D::PhysicalObject::CheckAndResolveCollision( KEngine2D::BoundaryLine const & other )
 {
-	for (std::vector<KEngine2D::BoundingCircle *>::const_iterator it = mCollisionVolumes.begin(); it != mCollisionVolumes.end(); it++)
+	CollisionInfo possibleCollision = mCollisionVolume->Collides(other);
+	if (possibleCollision.collides)
 	{
-		KEngine2D::BoundingCircle * circle = *it;
-		if (circle->Collides(other))
-		{
-			KEngine2D::Point offset = circle->GetCenter();
-			offset -= mMechanics->GetTranslation();
-			KEngine2D::Point collisionNormal = other.GetNormal();
-			KEngine2D::Point deltaVelocity = -GetVelocity(offset);
-			KEngine2D::Point impulse = KEngine2D::Project(collisionNormal, deltaVelocity, true);
-			impulse *= (2 * GetMass());
-			ApplyImpulse(impulse, offset);
-			return true; ///Again, only resolve the first collision detected.  This will cause problems, but probably not as severe as could be caused by naively attempting to resolve all collisions.
-		}
+		Point offset = possibleCollision.collisionPoint;
+		offset -= mMechanics->GetTranslation();
+		Point collisionNormal = possibleCollision.collisionNormal;
+		Point deltaVelocity = -GetVelocity(offset);
+		Point impulse = KEngine2D::Project(collisionNormal, deltaVelocity, true);
+		impulse *= (2.0f * GetMass());
+
+		float kinetic1 = GetEnergy();
+		ApplyImpulse(impulse, offset);
+		float kinetic2 = GetEnergy();
+		//assert(kinetic2 < 1.5 * kinetic1 && kinetic1 < 1.5 * kinetic2);
+		return true;
 	}
 	return false;
 }

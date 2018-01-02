@@ -1,5 +1,8 @@
-#include <cassert>
 #include "Boundaries2D.h"
+#include <cassert>
+#include <vector>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 KEngine2D::BoundaryLine::BoundaryLine()
 {
@@ -78,19 +81,434 @@ KEngine2D::Point KEngine2D::BoundingCircle::GetCenter() const
 	return mTransform->GetTranslation();
 }
 
-bool KEngine2D::BoundingCircle::Collides( BoundingCircle const & other )
+double KEngine2D::BoundingCircle::GetArea() const
 {
-	double xDiff = other.GetCenter().x - GetCenter().x;
-	double yDiff = other.GetCenter().y - GetCenter().y;
-	double distance2 = (xDiff * xDiff) + (yDiff * yDiff);
-	double minDistance = GetRadius() + other.GetRadius();
-	double minDistance2 = minDistance * minDistance;  // Cheaper than sqrt
-	return (distance2 <= minDistance2);
+	return M_PI * pow(GetRadius(), 2);
 }
 
-bool KEngine2D::BoundingCircle::Collides( BoundaryLine const & boundary )
+double KEngine2D::BoundingCircle::GetAreaMomentOfInertia() const
 {
-	double distance = boundary.GetSignedDistance(GetCenter());
+	return M_PI_4 * pow(GetRadius(), 4); //M_PI_4 is pi/4
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingCircle::Collides( BoundingCircle const & other ) const
+{
+	CollisionInfo retVal;
+	Point center = GetCenter();
+	Point otherCenter = other.GetCenter();
+	retVal.collisionNormal = otherCenter;
+	retVal.collisionNormal -= center;
+	double distance2 = DotProduct(retVal.collisionNormal, retVal.collisionNormal);
+	float radius = GetRadius();
+	float otherRadius = other.GetRadius();
+	double minDistance = radius + otherRadius;
+	double minDistance2 = minDistance * minDistance;  // Cheaper than sqrt
+	retVal.collides = distance2 <= minDistance2;
+	retVal.collisionPoint = retVal.collisionNormal;
+	retVal.collisionPoint *= radius / minDistance;
+	retVal.collisionPoint += center;
+	return retVal;
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingCircle::Collides( BoundaryLine const & boundary ) const
+{
+	CollisionInfo retVal;
+	Point center = GetCenter();
+	double distance = boundary.GetSignedDistance(center);
 	double minDistance = GetRadius();
-	return (distance <= minDistance);
+	retVal.collides = (distance <= minDistance);
+	retVal.collisionNormal = boundary.GetNormal();
+	retVal.collisionPoint = center;
+	retVal.collisionPoint -= retVal.collisionNormal;
+	return retVal;
+}
+
+KEngine2D::BoundingBox::BoundingBox()
+{
+	mTransform = nullptr;
+	mWidth = 0.0f;
+	mHeight = 0.0f;
+}
+
+KEngine2D::BoundingBox::~BoundingBox()
+{
+	Deinit();
+}
+
+void KEngine2D::BoundingBox::Init(Transform * transform, double width, double height)
+{
+	assert(transform != 0);
+	assert(width >= 0.0f);
+	assert(height >= 0.0f);
+	mTransform = transform;
+	mWidth = width;
+	mHeight = height;
+}
+
+void KEngine2D::BoundingBox::Deinit()
+{
+	mTransform = 0;
+	mWidth = 0.0f;
+	mHeight = 0.0f;
+}
+
+double KEngine2D::BoundingBox::GetWidth() const
+{
+	assert(mTransform != 0);
+	return mWidth * mTransform->GetScale();
+}
+
+double KEngine2D::BoundingBox::GetHeight() const
+{
+	assert(mTransform != 0);
+	return mHeight * mTransform->GetScale();
+}
+
+KEngine2D::Point KEngine2D::BoundingBox::GetCenter() const
+{
+	assert(mTransform != 0);
+	return mTransform->GetTranslation();
+}
+
+double KEngine2D::BoundingBox::GetArea() const
+{
+	return GetWidth() * GetHeight();
+}
+
+double KEngine2D::BoundingBox::GetAreaMomentOfInertia() const
+{
+	return (pow(GetHeight(), 2.0f) + pow(GetWidth(), 2.0f)) / 12.0f;
+}
+
+KEngine2D::Point KEngine2D::BoundingBox::GetCorner(Corner corner) const
+{
+	assert(corner >= 0 && corner < Corner::CornerCount);
+	constexpr Point corners[4] = {
+		{-.5f, -.5f}, //Upper Left
+		{ .5f, -.5f}, //Upper Right
+		{ .5f,  .5f}, //Lower Right
+		{-.5f,  .5f}  //Lower Left
+	};
+
+	const Point &cornerVec = corners[corner];
+
+	return mTransform->LocalToGlobal({cornerVec.x * GetWidth(), cornerVec.y * GetHeight()});
+}
+
+KEngine2D::Point KEngine2D::BoundingBox::GetAxis(Axis axis) const
+{
+	assert(axis >= 0 && axis < Axis::AxisCount);
+	return GetCorner((Corner)((axis * 2) + 1)) - GetCorner((Corner)0);
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(BoundaryLine const & boundary) const
+{
+	CollisionInfo retVal;
+	retVal.collides = false;
+	retVal.collisionNormal = boundary.GetNormal();
+	retVal.collisionPoint = Point::Origin();
+	float cumulativeDepth = 0.0f;
+	for (int i = 0; i < Corner::CornerCount; i++) {
+		Point corner = GetCorner((Corner)i);
+		float distance = boundary.GetSignedDistance(GetCorner((Corner)i));
+		if (distance < 0) {
+			cumulativeDepth -= distance;
+			corner *= -distance;
+			retVal.collisionPoint += corner;
+		}
+	}
+	retVal.collides = cumulativeDepth > 0.0f;
+	if (retVal.collides) {  //If multiple corners are beyond the boundary, scales the influence of that impact point by depth
+		retVal.collisionPoint /= cumulativeDepth;
+	}
+	return retVal;
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(BoundingCircle const & other) const
+{
+	CollisionInfo retVal;
+	retVal.collides = false;
+	retVal.collisionNormal = Point::Origin();
+	retVal.collisionPoint = Point::Origin();
+	Point center = GetCenter();
+	Point otherCenter = other.GetCenter();
+	float radius = other.GetRadius();
+	float radius2 = radius * radius;
+	float halfWidth = GetWidth() / 2.0f;
+	float halfHeight = GetHeight() / 2.0f;
+	Point otherCenterLocal = mTransform->GlobalToLocal(other.GetCenter());
+
+	if (otherCenterLocal.x > -halfWidth && otherCenterLocal.x < halfWidth && otherCenterLocal.y > -halfHeight && otherCenterLocal.y < halfHeight) //Deep penetration
+	{
+		retVal.collides = true;
+		retVal.collisionNormal = otherCenter;
+		retVal.collisionNormal -= center;
+		retVal.collisionPoint = otherCenter;
+	}
+	else if (otherCenterLocal.x > -halfWidth && otherCenterLocal.x < halfWidth) { //Vertical
+		if (otherCenterLocal.y > halfHeight && otherCenterLocal.y < halfHeight + radius) //Top
+		{
+			retVal.collides = true;
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 0, 1 }, true);
+			retVal.collisionPoint = mTransform->LocalToGlobal({ otherCenterLocal.x, halfHeight }, false);
+		}
+		else if (otherCenterLocal.y > -(halfHeight + radius) && otherCenterLocal.y < halfHeight) //Bottom
+		{
+			retVal.collides = true;
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 0, -1 }, true);
+			retVal.collisionPoint = mTransform->LocalToGlobal({ otherCenterLocal.x, -halfHeight }, false);
+		}
+	}
+	else if (otherCenterLocal.y > -halfHeight && otherCenterLocal.y < halfHeight) //Horizontal
+	{
+		if (otherCenterLocal.x > halfWidth && otherCenterLocal.x < halfWidth + radius) //Right
+		{
+			retVal.collides = true;
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 1, 0 }, true);
+			retVal.collisionPoint = mTransform->LocalToGlobal({ halfWidth, otherCenterLocal.y }, false);
+		}
+		else if (otherCenterLocal.x > -(halfWidth + radius) && otherCenterLocal.x < halfWidth) //Left
+		{
+			retVal.collides = true;
+			retVal.collisionNormal = mTransform->LocalToGlobal({ -1, 0 }, true);
+			retVal.collisionPoint = mTransform->LocalToGlobal({ -halfWidth, otherCenterLocal.y }, false);
+		}
+	} 
+	else // Check for corner penetration
+	{
+		for (int i = 0; i < Corner::CornerCount; i++) {
+			Point corner = GetCorner((Corner)i);
+			Point axis = otherCenter - corner;
+			float dist2 = DotProduct(axis, axis);
+			if (dist2 < radius2)
+			{
+				retVal.collides = true;
+				retVal.collisionNormal = axis;
+				retVal.collisionPoint = corner;
+				break;
+			}
+		}
+	}
+	return retVal;
+}
+
+
+KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(BoundingBox const & other) const
+{
+	CollisionInfo retVal;
+	retVal.collides = MayCollide(other) && other.MayCollide(*this);
+	retVal.collisionNormal = Point::Origin();
+	retVal.collisionPoint = Point::Origin();
+	if (retVal.collides) {
+		std::vector<std::pair<Point, Point>> cornerPenetrations;
+		//Does our corners penetrate?
+		for (int i = 0; i < Corner::CornerCount; i++) {
+			CollisionInfo possibleCollision = other.Collides(GetCorner((Corner)i));
+			if (possibleCollision.collides)
+			{
+				cornerPenetrations.push_back({ possibleCollision.collisionPoint, -possibleCollision.collisionNormal });// Invert the normal
+			}
+		}
+		//Okay, does one of their corners penetrate?
+		for (int i = 0; i < Corner::CornerCount; i++) {
+			CollisionInfo possibleCollision = Collides(other.GetCorner((Corner)i));
+			if (possibleCollision.collides)
+			{
+				cornerPenetrations.push_back({ possibleCollision.collisionPoint, possibleCollision.collisionNormal });
+			}
+		}
+
+		if (cornerPenetrations.size() > 0) {
+			for (auto penetration : cornerPenetrations) 
+			{
+				retVal.collisionPoint += penetration.first;
+				retVal.collisionNormal += penetration.second;
+			}
+			retVal.collisionPoint /= cornerPenetrations.size();
+			retVal.collisionNormal /= cornerPenetrations.size();
+			
+		}
+		
+		if (retVal.collisionNormal.x == 0 && retVal.collisionNormal.y == 0) 
+		{
+			retVal.collisionNormal = other.GetCenter();
+			retVal.collisionNormal -= GetCenter();
+			retVal.collisionPoint = other.GetCenter();
+		}
+	}
+	return retVal;
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(Point const & other) const
+{
+	CollisionInfo retVal;
+	retVal.collisionPoint = other;
+	Point otherLocal = mTransform->GlobalToLocal(other);
+	float halfWidth = GetWidth() / 2.0f;
+	float halfHeight = GetHeight() / 2.0f;
+	float slope = halfHeight / halfWidth;
+	retVal.collides = otherLocal.x > -halfWidth && otherLocal.x < halfWidth && otherLocal.y > -halfHeight &&  otherLocal.y < halfHeight;
+	if (otherLocal.y > (otherLocal.x * slope)) // Upper Right
+	{
+		if (otherLocal.y > (otherLocal.x * -slope)) //Upper quadrant
+		{
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 0, 1 }, true);
+		}
+		else // Right quadrant
+		{
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 1, 0 }, true);
+		}
+	}
+	else // Lower Left
+	{
+		if (otherLocal.y > (otherLocal.x * -slope)) //Left quadrant
+		{
+			retVal.collisionNormal = mTransform->LocalToGlobal({ -1, 0 }, true);
+		}
+		else // Bottom quadrant
+		{
+			retVal.collisionNormal = mTransform->LocalToGlobal({ 0, -1 }, true);
+		}
+	}
+	return retVal;
+}
+
+bool KEngine2D::BoundingBox::MayCollide(BoundingBox const & other) const
+{
+	constexpr Corner firstCorner = (Corner)0;
+	
+	for (int a = 0; a < Axis::AxisCount; a++) {
+
+		Corner firstCorner = (Corner)0;
+
+		Point axis = GetAxis((Axis)a);
+		axis /= DotProduct(axis, axis);
+		float origin = DotProduct(GetCorner(firstCorner), axis);
+
+		double t = DotProduct(other.GetCorner(Corner::UpperLeft), axis);
+
+		// Find the extent of box 2 on axis a
+		double tMin = t;
+		double tMax = t;
+
+		for (int c = firstCorner + 1; c < Corner::CornerCount; ++c) {
+			t = DotProduct(other.GetCorner((Corner)c), axis);
+
+			if (t < tMin) {
+				tMin = t;
+			}
+			else if (t > tMax) {
+				tMax = t;
+			}
+		}
+		// See if [tMin, tMax] intersects [0, 1]
+		if ((tMin > 1 + origin) || (tMax < origin)) {
+			// There was no intersection along this dimension;
+			// the boxes cannot possibly overlap.
+			return false;
+		}
+	}
+}
+
+void KEngine2D::BoundingArea::Init(Transform * transform)
+{
+	mTransform = transform;
+	mBoundingBoxes.clear();
+	mBoundingCircles.clear();
+}
+
+KEngine2D::Point KEngine2D::BoundingArea::GetCenter() const
+{
+	assert(mTransform != 0);
+	return mTransform->GetTranslation();
+}
+
+void KEngine2D::BoundingArea::AddBoundingBox(const BoundingBox * box)
+{
+	mBoundingBoxes.push_back(box);
+}
+
+void KEngine2D::BoundingArea::AddBoundingCircle(const BoundingCircle * circle)
+{
+	mBoundingCircles.push_back(circle);
+}
+
+double KEngine2D::BoundingArea::GetAreaMomentOfInertia()
+{
+	double accumulator = 0.0f;
+	for (const BoundingBox * box : mBoundingBoxes) {
+		accumulator += box->GetAreaMomentOfInertia();
+		Point offset = box->GetCenter() - GetCenter();
+		accumulator += DotProduct(offset, offset) * box->GetArea();
+	}
+
+
+	for (const BoundingCircle * circle : mBoundingCircles) {
+		accumulator += circle->GetAreaMomentOfInertia();
+		Point offset = circle->GetCenter() - GetCenter();
+		accumulator += DotProduct(offset, offset) * circle->GetArea();
+	}
+	return accumulator;
+}
+
+std::pair<KEngine2D::Point, KEngine2D::Point> KEngine2D::BoundingArea::GetAxisAlignedBoundingBox() const
+{
+	return std::pair<Point, Point>();
+}
+
+//Doesn't get the complete collision manifold, sorry.
+KEngine2D::CollisionInfo KEngine2D::BoundingArea::Collides(const BoundingArea & other) const
+{
+	for (const BoundingBox * box : mBoundingBoxes)
+	{
+		for (const BoundingBox * otherBox : other.mBoundingBoxes)
+		{
+			CollisionInfo possibleCollision = box->Collides(*otherBox);
+			if (possibleCollision.collides)
+			{
+				return possibleCollision;
+			}
+		}
+
+		for (const BoundingCircle * otherCircle : other.mBoundingCircles)
+		{
+			CollisionInfo possibleCollision = box->Collides(*otherCircle);
+			if (possibleCollision.collides)
+			{
+				return possibleCollision;
+			}
+		}
+	}
+
+	
+	for (const BoundingCircle * circle : mBoundingCircles)
+	{
+		for (const BoundingCircle * otherCircle : other.mBoundingCircles)
+		{
+			CollisionInfo possibleCollision = circle->Collides(*otherCircle);
+			if (possibleCollision.collides) {
+				return possibleCollision;
+			}
+		}
+	}
+	return { false, Point::Origin(), Point::Origin() };
+}
+
+KEngine2D::CollisionInfo KEngine2D::BoundingArea::Collides(BoundaryLine const & boundary) const
+{
+	for (const BoundingBox * box : mBoundingBoxes)
+	{
+		CollisionInfo possibleCollision = box->Collides(boundary);
+		if (possibleCollision.collides) {
+			return possibleCollision;
+		}
+	}
+	for (const BoundingCircle * circle : mBoundingCircles)
+	{
+		CollisionInfo possibleCollision = circle->Collides(boundary);
+		if (possibleCollision.collides) {
+			return possibleCollision;
+		}
+	}
+	return{ false, Point::Origin(), Point::Origin() };
 }

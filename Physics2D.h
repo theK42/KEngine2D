@@ -14,11 +14,13 @@ namespace KEngine2D
 		PhysicalObject();
 		~PhysicalObject();
 
-		void Init(PhysicsSystem * physicsSystem, MechanicalTransform * mechanics, std::vector<KEngine2D::BoundingCircle *> collisionVolumes, double mass);
+		void Init(PhysicsSystem * physicsSystem, MechanicalTransform * mechanics, BoundingArea * collisionVolume, double mass);
 		void Deinit();
 
 		double GetMass() const;
+		double GetMomentOfInertia() const;
 		void SetMass(double mass);
+		double GetEnergy() const;
 
 		KEngine2D::Point GetVelocity(KEngine2D::Point const & offset = KEngine2D::Point::Origin()) const;
 		void ApplyImpulse(KEngine2D::Point const & impulse, KEngine2D::Point const & offset = KEngine2D::Point::Origin());
@@ -30,7 +32,7 @@ namespace KEngine2D
 		double mMass;
 		MechanicalTransform * mMechanics;
 		PhysicsSystem * mPhysicsSystem;
-		std::vector<KEngine2D::BoundingCircle *> mCollisionVolumes;
+		BoundingArea * mCollisionVolume;
 	};
 
 
