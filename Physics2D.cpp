@@ -74,7 +74,7 @@ void KEngine2D::PhysicalObject::ApplyImpulse( KEngine2D::Point const & impulse, 
 	//Decompose the impulse vector into the component parallel to the offset (which will be applied directly to velocity)
 	//and the component perpendicular to the offset (which will be applied to angular velocity)
 	KEngine2D::Point deltaVelocity = impulse;
-	double deltaAngularVelocity = 0.3f * ((offset.x*impulse.y) - (offset.y*impulse.x)); //.3 is a complete hack, and doesn't really work
+	double deltaAngularVelocity = /*0.3f **/ ((offset.x*impulse.y) - (offset.y*impulse.x)); //.3 is a complete hack, and doesn't really work
 	
 	if (offset.x != 0.0f || offset.y != 0.0f)
 	{
@@ -116,6 +116,7 @@ void KEngine2D::PhysicalObject::ApplyImpulse( KEngine2D::Point const & impulse, 
 
 bool KEngine2D::PhysicalObject::CheckAndResolveCollision( PhysicalObject & other )
 {
+	constexpr float coefficientOfRestitution = 1.0f;
 	CollisionInfo possibleCollision = mCollisionVolume->Collides(*other.mCollisionVolume);
 	if (possibleCollision.collides) {
 		Point offset = possibleCollision.collisionPoint;
@@ -123,27 +124,59 @@ bool KEngine2D::PhysicalObject::CheckAndResolveCollision( PhysicalObject & other
 		Point otherOffset = possibleCollision.collisionPoint;
 		otherOffset -= other.mMechanics->GetTranslation();
 		Point collisionNormal = possibleCollision.collisionNormal;
+		collisionNormal /= sqrt(DotProduct(collisionNormal, collisionNormal));
+
+		//assert(DotProduct(collisionNormal, collisionNormal) == 1.0f);
+
 		double mass = GetMass();
 		double otherMass = other.GetMass();
 		double momentOfInertia = GetMomentOfInertia();
 		double otherMomentOfInertia = other.GetMomentOfInertia();
 		
-		KEngine2D::Point velocity = KEngine2D::Project(collisionNormal, GetVelocity(offset));
-		KEngine2D::Point otherVelocity = KEngine2D::Project(collisionNormal, other.GetVelocity(otherOffset));
+		KEngine2D::Point velocity = GetVelocity(offset);
+		KEngine2D::Point otherVelocity = other.GetVelocity(otherOffset);
+		KEngine2D::Point relativeVelocity = otherVelocity;
+		relativeVelocity -= velocity;
 
 		double oldImpulseCoefficient = (2 * mass * otherMass) / (mass + otherMass); //masses asserted positive, total can't be zero
-		double offsetCrossNormal = (offset.x * collisionNormal.y) - (offset.y * collisionNormal.x);
-		double otherOffsetCrossNormal = (otherOffset.x * collisionNormal.y) - (otherOffset.y * collisionNormal.x);
+		double offsetCrossNormal = PseudoCrossProduct(offset, collisionNormal);
+		Point offsetCrossNormalCrossOffset = PseudoCrossProduct(collisionNormal, offsetCrossNormal);
+		offsetCrossNormalCrossOffset /= momentOfInertia;
 
-		double impulseCoefficient = 2 / ((1 / mass) + (1 / otherMass) + (offsetCrossNormal / momentOfInertia) + (otherOffsetCrossNormal / otherMomentOfInertia));
-		KEngine2D::Point impulse = otherVelocity;
-		impulse -= velocity;
+
+		double otherOffsetCrossNormal = PseudoCrossProduct(otherOffset, collisionNormal);
+		Point otheroffsetCrossNormalCrossOffset = PseudoCrossProduct(collisionNormal, otherOffsetCrossNormal);
+		otheroffsetCrossNormalCrossOffset /= otherMomentOfInertia;
+
+		offsetCrossNormalCrossOffset += otheroffsetCrossNormalCrossOffset;
+
+		double idontevenknowanymore = DotProduct(offsetCrossNormalCrossOffset, collisionNormal);
+
+		double impulseCoefficient = -(1 + coefficientOfRestitution) / ((1 / mass) + (1 / otherMass) + idontevenknowanymore);
+
+		//double impulseCoefficient = (1 + coefficientOfRestitution) / ((1 / mass) + (1 / otherMass) + (offsetCrossNormal / momentOfInertia) + (otherOffsetCrossNormal / otherMomentOfInertia));
+
+
+		
+		//KEngine2D::Point impulse = Project(collisionNormal, relativeVelocity);
+		KEngine2D::Point impulse = collisionNormal;
 		impulse *= impulseCoefficient;
+		
 		KEngine2D::Point otherImpulse = -impulse;
 		float kinetic1 = GetEnergy() + other.GetEnergy();
 		ApplyImpulse(impulse, offset);
 		other.ApplyImpulse(otherImpulse, otherOffset);
+
+		KEngine2D::Point postVelocity = KEngine2D::Project(collisionNormal, GetVelocity(offset));
+		KEngine2D::Point postOtherVelocity = KEngine2D::Project(collisionNormal, other.GetVelocity(otherOffset));
+		KEngine2D::Point postRelativeVelocity = postOtherVelocity;
+		postRelativeVelocity -= postVelocity;
+
 		float kinetic2 = GetEnergy() + other.GetEnergy();
+		float left = DotProduct(postRelativeVelocity, collisionNormal);
+		float right = -coefficientOfRestitution * DotProduct(relativeVelocity, collisionNormal);
+		assert(left - right < 5.0 && left - right > -5.0);
+
 		//assert(kinetic2 < 1.1 * kinetic1 && kinetic1 < 1.1 * kinetic2);
 		return true;
 	}
