@@ -207,19 +207,18 @@ KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(BoundaryLine const & b
 	retVal.collides = false;
 	retVal.collisionNormal = boundary.GetNormal();
 	retVal.collisionPoint = Point::Origin();
-	float cumulativeDepth = 0.0f;
+	int numPenetrating = 0;
 	for (int i = 0; i < Corner::CornerCount; i++) {
 		Point corner = GetCorner((Corner)i);
-		float distance = boundary.GetSignedDistance(GetCorner((Corner)i));
+		float distance = boundary.GetSignedDistance(corner);
 		if (distance < 0) {
-			cumulativeDepth -= distance;
-			corner *= -distance;
+			numPenetrating++;;
 			retVal.collisionPoint += corner;
 		}
 	}
-	retVal.collides = cumulativeDepth > 0.0f;
+	retVal.collides = numPenetrating > 0;
 	if (retVal.collides) {  //If multiple corners are beyond the boundary, scales the influence of that impact point by depth
-		retVal.collisionPoint /= cumulativeDepth;
+		retVal.collisionPoint /= numPenetrating;
 	}
 	return retVal;
 }
@@ -322,10 +321,10 @@ KEngine2D::CollisionInfo KEngine2D::BoundingBox::Collides(BoundingBox const & ot
 			for (auto penetration : cornerPenetrations) 
 			{
 				retVal.collisionPoint += penetration.first;
-				retVal.collisionNormal += penetration.second;
+				retVal.collisionNormal = penetration.second;
 			}
 			retVal.collisionPoint /= cornerPenetrations.size();
-			retVal.collisionNormal /= cornerPenetrations.size();
+			//retVal.collisionNormal /= cornerPenetrations.size();
 			
 		}
 		
