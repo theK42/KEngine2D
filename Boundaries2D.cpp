@@ -511,3 +511,13 @@ KEngine2D::CollisionInfo KEngine2D::BoundingArea::Collides(BoundaryLine const & 
 	}
 	return{ false, Point::Origin(), Point::Origin() };
 }
+
+const std::vector<const KEngine2D::BoundingBox*>& KEngine2D::BoundingArea::GetBoundingBoxes()
+{
+	return mBoundingBoxes;
+}
+
+const std::vector<const KEngine2D::BoundingCircle*>& KEngine2D::BoundingArea::GetBoundingCircles()
+{
+	return mBoundingCircles;
+}

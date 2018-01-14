@@ -113,6 +113,9 @@ namespace KEngine2D
 		CollisionInfo Collides(const BoundingArea &other) const;
 		CollisionInfo Collides(BoundaryLine const & boundary) const;
 
+		const std::vector<const BoundingBox *>& GetBoundingBoxes();
+		const std::vector<const BoundingCircle *>& GetBoundingCircles();
+
 	private:
 		std::vector<const BoundingBox *> mBoundingBoxes;
 		std::vector<const BoundingCircle *> mBoundingCircles;
