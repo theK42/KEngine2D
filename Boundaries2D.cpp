@@ -407,6 +407,7 @@ bool KEngine2D::BoundingBox::MayCollide(BoundingBox const & other) const
 			return false;
 		}
 	}
+    return true;
 }
 
 void KEngine2D::BoundingArea::Init(Transform * transform)

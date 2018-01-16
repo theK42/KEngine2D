@@ -1,5 +1,6 @@
 #include "Physics2D.h"
 #include <algorithm>
+#include <math.h>
 
 KEngine2D::PhysicalObject::PhysicalObject()
 {
