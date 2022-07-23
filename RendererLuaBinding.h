@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Lua/lua.hpp"
+#include "Lua.hpp"
 #include "Renderer2D.h"
 
 namespace KEngine2D {

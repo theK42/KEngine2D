@@ -1,6 +1,6 @@
 #include "RendererLuaBinding.h"
 #include <assert.h> 
-#include "Lua/lauxlib.h"
+#include "lauxlib.h"
 
 KEngine2D::RendererBinding * KEngine2D::RendererBinding::mInstance = nullptr;
 
