@@ -1,4 +1,5 @@
 #pragma once
+#include "LuaScheduler.h"
 
 namespace KEngine2D
 {
@@ -29,6 +30,9 @@ namespace KEngine2D
 	Point PseudoCrossProduct(Point const & vec1, float scalar);
 	Point Project(Point const & axis, Point const & vec, bool positiveOnly = false);
 
+
+
+
 	class Transform
 	{
 	public:
@@ -41,4 +45,18 @@ namespace KEngine2D
 		virtual Point LocalToGlobal(Point const & point, bool asVector = false) const;
 		virtual Point GlobalToLocal(Point const & point) const;
 	};
+}
+
+namespace KEngineCore
+{
+	template<>
+	inline void pushToLua<KEngine2D::Point>(lua_State* state, KEngine2D::Point t)
+	{
+		lua_checkstack(state, 2);
+		lua_newtable(state);
+		lua_pushnumber(state, t.x);
+		lua_setfield(state, -2, "x");
+		lua_pushnumber(state, t.y);
+		lua_setfield(state, -2, "y");
+	}
 }
