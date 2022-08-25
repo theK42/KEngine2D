@@ -53,6 +53,15 @@ KEngine2D::StaticTransform const & KEngine2D::StaticTransform::Identity()
 	return identity;
 }
 
+KEngine2D::StaticTransform& KEngine2D::StaticTransform::operator=(Transform const& other)
+{
+    mTranslation = other.GetTranslation();
+    mRotation = other.GetRotation();
+    mScale = other.GetScale();
+    UpdateMatrix();
+    return *this;
+}
+
 void KEngine2D::StaticTransform::UpdateMatrix()
 {
     float sinTheta = sin(mRotation);

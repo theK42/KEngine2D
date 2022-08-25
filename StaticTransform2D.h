@@ -20,6 +20,8 @@ namespace KEngine2D
 
 		static StaticTransform const & Identity();
 
+		StaticTransform& operator=(Transform const& other);
+
 	private:
         void UpdateMatrix();
         

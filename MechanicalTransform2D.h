@@ -11,7 +11,7 @@ namespace KEngine2D
 	public:
 		MechanicalTransform();
 		~MechanicalTransform();
-		void Init(StaticTransform const & currentTransform = StaticTransform::Identity(), Point const & velocity = Point::Origin(), double angularVelocity = 0.0f);
+		void Init(Transform const & currentTransform = StaticTransform::Identity(), Point const & velocity = Point::Origin(), double angularVelocity = 0.0f);
 		void Deinit();
 
 		void Update(double fTime);
@@ -38,7 +38,7 @@ namespace KEngine2D
 	class UpdatingMechanicalTransform : public KEngineCore::Updating<MechanicalTransform>
 	{
 	public:
-		void Init(KEngineCore::Updater<MechanicalTransform> * updater, StaticTransform const & currentTransform = KEngine2D::StaticTransform::Identity(), KEngine2D::Point const & velocity = KEngine2D::Point::Origin(), double angularVelocity = 0.0f);
+		void Init(KEngineCore::Updater<MechanicalTransform> * updater, Transform const & currentTransform = KEngine2D::StaticTransform::Identity(), KEngine2D::Point const & velocity = KEngine2D::Point::Origin(), double angularVelocity = 0.0f);
 	};
 
 	class MechanicsUpdater : public  KEngineCore::Updater<MechanicalTransform> {};
