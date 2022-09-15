@@ -49,7 +49,7 @@ double KEngine2D::MechanicalTransform::GetRotation() const
 	return mCurrentTransform.GetRotation();
 }
 
-double KEngine2D::MechanicalTransform::GetScale() const
+KEngine2D::Point KEngine2D::MechanicalTransform::GetScale() const
 {
 	return mCurrentTransform.GetScale();
 }

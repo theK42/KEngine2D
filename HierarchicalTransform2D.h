@@ -18,7 +18,7 @@ namespace KEngine2D
 
 		virtual Point GetTranslation() const override;
 		virtual double GetRotation() const override;
-		virtual double GetScale() const override;
+		virtual Point GetScale() const override;
         virtual const Matrix& GetAsMatrix() const override;
 
 		StaticTransform const & GetLocalTransform() const;

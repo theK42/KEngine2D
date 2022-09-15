@@ -72,7 +72,8 @@ void KEngine2D::BoundingCircle::Deinit()
 double KEngine2D::BoundingCircle::GetRadius() const
 {	
 	assert(mTransform != 0);
-	return mRadius * mTransform->GetScale();
+	assert(mTransform->GetScale().x == mTransform->GetScale().y); // Currently only supporting uniform scale, will need to revisit
+	return mRadius * mTransform->GetScale().x;
 }
 
 KEngine2D::Point KEngine2D::BoundingCircle::GetCenter() const
@@ -155,13 +156,15 @@ void KEngine2D::BoundingBox::Deinit()
 double KEngine2D::BoundingBox::GetWidth() const
 {
 	assert(mTransform != 0);
-	return mWidth * mTransform->GetScale();
+	assert(mTransform->GetScale().x == 1.0 || abs(sin(mTransform->GetRotation())) <= 0.01); // Haven't built this to support rotation and scale together really have I?
+	return mWidth * mTransform->GetScale().x;  
 }
 
 double KEngine2D::BoundingBox::GetHeight() const
 {
 	assert(mTransform != 0);
-	return mHeight * mTransform->GetScale();
+	assert(mTransform->GetScale().x == 1.0 || abs(sin(mTransform->GetRotation())) <= 0.01); // Haven't built this to support rotation and scale together really have I?
+	return mHeight * mTransform->GetScale().y;
 }
 
 KEngine2D::Point KEngine2D::BoundingBox::GetCenter() const

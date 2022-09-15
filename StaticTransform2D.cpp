@@ -1,7 +1,7 @@
 #include "StaticTransform2D.h"
 #include <cmath>
 
-KEngine2D::StaticTransform::StaticTransform(Point const & translation /* = Point::Origin() */, double radians /* = 0.0f */, double scale /* = 1.0f */)
+KEngine2D::StaticTransform::StaticTransform(Point const & translation /* = Point::Origin() */, double radians /* = 0.0f */, Point scale /* = Point::Identity() */)
 {
 	mTranslation = translation;
 	mRotation = radians;
@@ -19,7 +19,7 @@ double KEngine2D::StaticTransform::GetRotation() const
 	return mRotation;
 }
 
-double KEngine2D::StaticTransform::GetScale() const
+KEngine2D::Point KEngine2D::StaticTransform::GetScale() const
 {
 	return mScale;
 }
@@ -41,7 +41,7 @@ void KEngine2D::StaticTransform::SetRotation( double rotation )
     UpdateMatrix();
 }
 
-void KEngine2D::StaticTransform::SetScale( double scale )
+void KEngine2D::StaticTransform::SetScale(Point const& scale )
 {
 	mScale = scale;
     UpdateMatrix();
@@ -49,7 +49,7 @@ void KEngine2D::StaticTransform::SetScale( double scale )
 
 KEngine2D::StaticTransform const & KEngine2D::StaticTransform::Identity()
 {
-	static StaticTransform identity(Point::Origin(), 0.0f, 1.0f);
+	static StaticTransform identity(Point::Origin(), 0.0f, Point::Identity());
 	return identity;
 }
 
@@ -66,8 +66,8 @@ void KEngine2D::StaticTransform::UpdateMatrix()
 {
     float sinTheta = sin(mRotation);
     float cosTheta = cos(mRotation);
-    float xScale = mScale;
-    float yScale = mScale;
+    float xScale = mScale.x;
+    float yScale = mScale.y;
     mMatrix.data[0][0] = xScale * cosTheta;
     mMatrix.data[0][1] = - yScale * sinTheta;
     mMatrix.data[0][2] = 0;

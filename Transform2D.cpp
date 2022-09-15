@@ -20,6 +20,13 @@ KEngine2D::Point const & KEngine2D::Point::Origin()
 	return origin;
 }
 
+KEngine2D::Point const& KEngine2D::Point::Identity()
+{
+	static Point origin = { 1.0f, 1.0f };
+	return origin;
+}
+
+
 KEngine2D::Point & KEngine2D::Point::operator+=( Point const & other )
 {
 	x += other.x;
@@ -33,6 +40,15 @@ KEngine2D::Point & KEngine2D::Point::operator-=( Point const & other )
 	y -= other.y;
 	return *this;
 }
+
+
+KEngine2D::Point& KEngine2D::Point::operator*=(Point const& other)
+{
+	x *= other.x;
+	y *= other.y;
+	return *this;
+}
+
 
 KEngine2D::Point & KEngine2D::Point::operator*=(double const & scalar)
 {
@@ -60,9 +76,14 @@ KEngine2D::Point KEngine2D::Point::operator+(Point const & other)
 	return{ x + other.x, y + other.y };
 }
 
-KEngine2D::Point KEngine2D::Point::operator-(Point const & other) 
+KEngine2D::Point KEngine2D::Point::operator-(Point const& other)
 {
 	return{ x - other.x, y - other.y };
+}
+
+KEngine2D::Point KEngine2D::Point::operator*(Point const& other)
+{
+	return{ x * other.x, y * other.y };
 }
 
 float KEngine2D::DotProduct(Point const & vec1, Point const & vec2)
@@ -101,13 +122,13 @@ KEngine2D::Point KEngine2D::Project( Point const & axis, Point const & vec, bool
 KEngine2D::Point KEngine2D::Transform::LocalToGlobal(Point const & point, bool asVector) const
 {
 	Point retVal = point;
-	double scale = GetScale();
+	Point scale = GetScale();
 	double radians = GetRotation();
 	Point translation = GetTranslation();
 	if (!asVector)
 	{
-		retVal.x *= scale;
-		retVal.y *= scale;
+		retVal.x *= scale.x;
+		retVal.y *= scale.y;
 	}
 	float cosTheta = cos(radians);
 	float sinTheta = sin(radians);
