@@ -156,14 +156,14 @@ void KEngine2D::BoundingBox::Deinit()
 double KEngine2D::BoundingBox::GetWidth() const
 {
 	assert(mTransform != 0);
-	assert(mTransform->GetScale().x == 1.0 || abs(sin(mTransform->GetRotation())) <= 0.01); // Haven't built this to support rotation and scale together really have I?
+	assert(mTransform->GetScale().x == mTransform->GetScale().y); // Currently only supporting uniform scale, will need to revisit
 	return mWidth * mTransform->GetScale().x;  
 }
 
 double KEngine2D::BoundingBox::GetHeight() const
 {
 	assert(mTransform != 0);
-	assert(mTransform->GetScale().x == 1.0 || abs(sin(mTransform->GetRotation())) <= 0.01); // Haven't built this to support rotation and scale together really have I?
+	assert(mTransform->GetScale().x == mTransform->GetScale().y); // Currently only supporting uniform scale, will need to revisit
 	return mHeight * mTransform->GetScale().y;
 }
 
