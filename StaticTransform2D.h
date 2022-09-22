@@ -9,6 +9,9 @@ namespace KEngine2D
 	public:
 		StaticTransform(Point const & translation = Point::Origin(), double radians = 0.0f, Point scale = Point::Identity());
 	
+		void Init() {};
+		void Deinit() {};
+
 		virtual Point GetTranslation() const;
 		virtual double GetRotation() const;
 		virtual Point GetScale() const;
