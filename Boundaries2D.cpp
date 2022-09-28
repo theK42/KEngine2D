@@ -92,6 +92,14 @@ double KEngine2D::BoundingCircle::GetAreaMomentOfInertia() const
 	return M_PI_4 * pow(GetRadius(), 4); //M_PI_4 is pi/4
 }
 
+std::pair<KEngine2D::Point, KEngine2D::Point> KEngine2D::BoundingCircle::GetAxisAlignedBoundingBox() const
+{
+	Point center = GetCenter();
+	double radius = GetRadius();
+	Point diff = { radius, radius };
+	return { center - diff, center + diff };
+}
+
 KEngine2D::CollisionInfo KEngine2D::BoundingCircle::Collides( BoundingCircle const & other ) const
 {
 	CollisionInfo retVal;
@@ -183,6 +191,24 @@ double KEngine2D::BoundingBox::GetAreaMomentOfInertia() const
 	return (pow(GetHeight(), 2.0f) + pow(GetWidth(), 2.0f)) / 12.0f;
 }
 
+std::pair<KEngine2D::Point, KEngine2D::Point> KEngine2D::BoundingBox::GetAxisAlignedBoundingBox() const
+{
+	constexpr Corner firstCorner = (Corner)0;
+
+	double minX = std::numeric_limits<double>::max();
+	double minY = std::numeric_limits<double>::max();
+	double maxX = std::numeric_limits<double>::lowest();
+	double maxY = std::numeric_limits<double>::lowest();
+	for (int c = firstCorner; c < Corner::CornerCount; c++) {
+		Point p = GetCorner((Corner)c);
+		minX = std::min(p.x, minX);
+		minY = std::min(p.y, minY);
+		maxX = std::max(p.x, maxX);
+		maxY = std::max(p.y, maxY);
+	}
+	return { {minX, minY}, {maxX, maxY} };
+}
+
 KEngine2D::Point KEngine2D::BoundingBox::GetCorner(Corner corner) const
 {
 	assert(corner >= 0 && corner < Corner::CornerCount);
@@ -195,7 +221,7 @@ KEngine2D::Point KEngine2D::BoundingBox::GetCorner(Corner corner) const
 
 	const Point &cornerVec = corners[corner];
 
-	return mTransform->LocalToGlobal({cornerVec.x * GetWidth(), cornerVec.y * GetHeight()});
+	return mTransform->LocalToGlobal({cornerVec.x * mWidth, cornerVec.y * mHeight});
 }
 
 KEngine2D::Point KEngine2D::BoundingBox::GetAxis(Axis axis) const
@@ -420,6 +446,13 @@ void KEngine2D::BoundingArea::Init(Transform * transform)
 	mBoundingCircles.clear();
 }
 
+void KEngine2D::BoundingArea::Deinit()
+{
+	mBoundingBoxes.clear();
+	mBoundingCircles.clear();
+	mTransform = nullptr;
+}
+
 KEngine2D::Point KEngine2D::BoundingArea::GetCenter() const
 {
 	assert(mTransform != 0);
@@ -456,7 +489,25 @@ double KEngine2D::BoundingArea::GetAreaMomentOfInertia()
 
 std::pair<KEngine2D::Point, KEngine2D::Point> KEngine2D::BoundingArea::GetAxisAlignedBoundingBox() const
 {
-	return std::pair<Point, Point>();
+	double minX = std::numeric_limits<double>::max();
+	double minY = std::numeric_limits<double>::max();
+	double maxX = std::numeric_limits<double>::lowest();
+	double maxY = std::numeric_limits<double>::lowest();
+	for (const BoundingBox* box : mBoundingBoxes) {
+		auto bounds = box->GetAxisAlignedBoundingBox();
+		minX = std::min(bounds.first.x, minX);
+		minY = std::min(bounds.first.y, minY);
+		maxX = std::max(bounds.second.x, maxX);
+		maxY = std::max(bounds.second.y, maxY);
+	}
+	for (const BoundingCircle* circle : mBoundingCircles) {
+		auto bounds = circle->GetAxisAlignedBoundingBox();
+		minX = std::min(bounds.first.x, minX);
+		minY = std::min(bounds.first.y, minY);
+		maxX = std::max(bounds.second.x, maxX);
+		maxY = std::max(bounds.second.y, maxY);
+	}
+	return {{minX, minY}, { maxX, maxY }};
 }
 
 //Doesn't get the complete collision manifold, sorry.

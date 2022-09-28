@@ -47,6 +47,7 @@ namespace KEngine2D
 		Point GetCenter() const;
 		double GetArea() const;
 		double GetAreaMomentOfInertia() const;
+		std::pair<Point, Point> GetAxisAlignedBoundingBox() const;
 
 		CollisionInfo Collides(BoundingCircle const & other) const;
 		CollisionInfo Collides(BoundaryLine const & boundary) const;
@@ -69,6 +70,7 @@ namespace KEngine2D
 		Point GetCenter() const;
 		double GetArea() const;
 		double GetAreaMomentOfInertia() const;
+		std::pair<Point, Point> GetAxisAlignedBoundingBox() const;
 
 		CollisionInfo Collides(BoundingCircle const & other) const;
 		CollisionInfo Collides(BoundaryLine const & boundary) const;
