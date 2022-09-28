@@ -5,6 +5,8 @@ project(KEngine2D)
 add_library(KEngine2D STATIC
 Boundaries2D.h
 Boundaries2D.cpp
+Collision2D.h
+Collision2D.cpp
 HierarchicalTransform2D.h
 HierarchicalTransform2D.cpp
 MechanicalTransform2D.h
