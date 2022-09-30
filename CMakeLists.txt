@@ -23,5 +23,6 @@ Transform2D.cpp
 )
 
 
+target_compile_features(KEngine2D PUBLIC cxx_std_20) 
 target_include_directories(KEngine2D PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(KEngine2D PUBLIC KEngineCore)

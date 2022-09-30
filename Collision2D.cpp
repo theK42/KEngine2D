@@ -23,8 +23,12 @@ std::vector<std::pair<int, int>>& KEngine2D::BroadPhaseCollider::GetBroadPhaseCo
 
     convertBoxes(leftAABBs, mLeftBoxes);
     convertBoxes(rightAABBs, mRightBoxes);
-
+#ifdef __cpp_lib_ranges
     Zomorodian_Edelsbrunner::Hybrid3(mRetVal, mLeftBoxes, mRightBoxes, Zomorodian_Edelsbrunner::Interval::All(), 2, 1000);
+#else
+    
+    Zomorodian_Edelsbrunner::Hybrid3(mRetVal, {mLeftBoxes.begin(), mLeftBoxes.end()}, {mRightBoxes.begin(), mRightBoxes.end()}, Zomorodian_Edelsbrunner::Interval::All(), 2, 1000);
+#endif
     return mRetVal;
 }
 
@@ -56,7 +60,12 @@ void KEngine2D::Zomorodian_Edelsbrunner::BruteCheck(std::vector<std::pair<int, i
     }
 }
 
+
+#ifdef __cpp_lib_ranges
 int KEngine2D::Zomorodian_Edelsbrunner::ApproxMedian(BoxRange auto boxes, int dimension)
+#else
+int KEngine2D::Zomorodian_Edelsbrunner::ApproxMedian(BoxRange boxes, int dimension)
+#endif
 {
     //This is not the ApproxMedian algorithm used by Zomorodian and Edelsbrunner (2000).  It should be more accurate and just as fast.
 
@@ -82,7 +91,7 @@ int KEngine2D::Zomorodian_Edelsbrunner::ApproxMedian(BoxRange auto boxes, int di
         int index = distribution(generator);
     
         //Inserting into the set
-        s.insert(boxes[index].intervals[dimension].lo);
+        s.insert(boxes[index].intervals[dimension].lo);\
     }
     
     auto itr = s.begin();
@@ -96,14 +105,24 @@ int KEngine2D::Zomorodian_Edelsbrunner::ApproxMedian(BoxRange auto boxes, int di
 }
 
 
+#ifdef __cpp_lib_ranges
 void KEngine2D::Zomorodian_Edelsbrunner::OneWayScan(std::vector<std::pair<int, int>>& output, BoxRange auto leftBoxes, BoxRange auto rightBoxes, int dimension)
+#else
+void KEngine2D::Zomorodian_Edelsbrunner::OneWayScan(std::vector<std::pair<int, int>>& output, BoxRange leftBoxes, BoxRange rightBoxes, int dimension)
+#endif
 {
     auto boxComparator = [dimension](Box& box, Box& otherBox) {
         return box.intervals[dimension].lo < otherBox.intervals[dimension].lo;
     };
 
+    
+#ifdef __cpp_lib_ranges
     std::ranges::sort(leftBoxes, boxComparator);
     std::ranges::sort(rightBoxes, boxComparator);
+#else
+    std::sort(leftBoxes.begin(), leftBoxes.end(), boxComparator);
+    std::sort(rightBoxes.begin(), rightBoxes.end(), boxComparator);
+#endif
 
     auto pIter = rightBoxes.begin();
     for (Box& intervalBox : leftBoxes)
@@ -118,14 +137,23 @@ void KEngine2D::Zomorodian_Edelsbrunner::OneWayScan(std::vector<std::pair<int, i
     }
 }
 
+#ifdef __cpp_lib_ranges
 void KEngine2D::Zomorodian_Edelsbrunner::ModifiedTwoWayScan(std::vector<std::pair<int, int>>& output, BoxRange auto leftBoxes, BoxRange auto rightBoxes, int dimension)
+#else
+void KEngine2D::Zomorodian_Edelsbrunner::ModifiedTwoWayScan(std::vector<std::pair<int, int>>& output, BoxRange leftBoxes, BoxRange rightBoxes, int dimension)
+#endif
 {
     auto boxComparator = [dimension](Box& box, Box& otherBox) {
         return box.intervals[dimension].lo < otherBox.intervals[dimension].lo;
     };
 
+#ifdef __cpp_lib_ranges
     std::ranges::sort(leftBoxes, boxComparator);
     std::ranges::sort(rightBoxes, boxComparator);
+#else
+    std::sort(leftBoxes.begin(), leftBoxes.end(), boxComparator);
+    std::sort(rightBoxes.begin(), rightBoxes.end(), boxComparator);
+#endif
 
     auto lIter = leftBoxes.begin();
     auto rIter = rightBoxes.begin();
@@ -149,8 +177,11 @@ void KEngine2D::Zomorodian_Edelsbrunner::ModifiedTwoWayScan(std::vector<std::pai
     }
 }
 
-
+#ifdef __cpp_lib_ranges
 void KEngine2D::Zomorodian_Edelsbrunner::Hybrid3(std::vector<std::pair<int, int>>& output, BoxRange auto leftBoxIntervals, BoxRange auto rightBoxPoints, Interval interval, int dimension, int cutoff)
+#else
+void KEngine2D::Zomorodian_Edelsbrunner::Hybrid3(std::vector<std::pair<int, int>>& output, BoxRange leftBoxIntervals, BoxRange rightBoxPoints, Interval interval, int dimension, int cutoff)
+#endif
 {
     if (leftBoxIntervals.empty() || rightBoxPoints.empty() || interval.empty())
     {
@@ -175,34 +206,66 @@ void KEngine2D::Zomorodian_Edelsbrunner::Hybrid3(std::vector<std::pair<int, int>
     int lowIndex = 0;
     int highIndex = leftBoxIntervals.size() - 1;
 
+    
+#ifdef __cpp_lib_ranges
     auto nonSpanIntervalsRange = std::ranges::partition(leftBoxIntervals, [&](const auto& box) {
         return Spans(box.intervals[dimension], interval);
         });
 
     auto spanIntervalsRange = std::ranges::subrange(leftBoxIntervals.begin(), nonSpanIntervalsRange.begin());
+#else
+    auto nonSpanBegin = std::partition(leftBoxIntervals.begin(), leftBoxIntervals.end(), [&](const auto& box) {
+        return Spans(box.intervals[dimension], interval);
+    });
+    BoxRange nonSpanIntervalsRange = {nonSpanBegin, leftBoxIntervals.end()};
+    BoxRange spanIntervalsRange = {leftBoxIntervals.begin(), nonSpanIntervalsRange.begin()};
+#endif
 
     Hybrid3(output, spanIntervalsRange, rightBoxPoints, Interval::All(), dimension - 1, cutoff);
     Hybrid3(output, rightBoxPoints, spanIntervalsRange, Interval::All(), dimension - 1, cutoff);
 
 
     int split = ApproxMedian(rightBoxPoints, dimension);
+#ifdef __cpp_lib_ranges
     auto rightPointRange = std::ranges::partition(rightBoxPoints, [&](const auto& box) {
         return box.intervals[dimension].lo >= split;
     });
     auto leftPointRange = std::ranges::subrange(rightBoxPoints.begin(), rightPointRange.begin());
+#else
+    auto rightPointBegin = std::partition(rightBoxPoints.begin(), rightBoxPoints.end(), [&](const auto& box) {
+        return box.intervals[dimension].lo >= split;
+    });
+    
+    BoxRange rightPointRange = {rightPointBegin, rightBoxPoints.end()};
+    BoxRange leftPointRange = {rightBoxPoints.begin(), rightPointRange.begin()};
+#endif
 
     Interval leftInterval = { interval.lo, split };
 
+#ifdef __cpp_lib_ranges
     auto leftIntervalRange = std::ranges::partition(nonSpanIntervalsRange, [&](const auto& box) {
         return Intersects(box.intervals[dimension], leftInterval);
     });
+#else
+    auto leftIntervalBegin = std::partition(nonSpanIntervalsRange.begin(), nonSpanIntervalsRange.end(), [&](const auto& box) {
+        return Intersects(box.intervals[dimension], leftInterval);
+    });
+    BoxRange leftIntervalRange = {leftIntervalBegin, nonSpanIntervalsRange.end()};
+#endif
 
     Hybrid3(output, leftIntervalRange, leftPointRange, leftInterval, dimension, cutoff);
 
     Interval rightInterval = { split, interval.hi };
+#ifdef __cpp_lib_ranges
     auto rightIntervalRange = std::ranges::partition(nonSpanIntervalsRange, [&](const auto& box) {
         return Intersects(box.intervals[dimension], rightInterval);
     });
+#else
+    auto rightIntervalBegin = std::partition(nonSpanIntervalsRange.begin(), nonSpanIntervalsRange.end(), [&](const auto& box) {
+        return Intersects(box.intervals[dimension], rightInterval);
+    });
+    BoxRange rightIntervalRange = {rightIntervalBegin, nonSpanIntervalsRange.end()};
+#endif
 
     Hybrid3(output, rightIntervalRange, rightPointRange, rightInterval, dimension, cutoff);
 }

@@ -29,23 +29,54 @@ namespace KEngine2D {
 			ColliderHandle boxId;
 		};
 
+        
+        bool Intersects(const Interval& interval, const Interval& other);
+        bool Spans(const Interval& interval, const Interval& other);
+
+        void BruteCheck(std::vector<std::pair<int, int>>& output, Box& box, Box& otherBox, int dimension);
+        
+#ifdef __cpp_lib_ranges
 
 		template<typename T>
 		concept BoxRange = std::ranges::viewable_range<T> && requires (T t) {
 			{t.operator[](0)} -> std::convertible_to<Box>;
 		};
-
-
-		bool Intersects(const Interval& interval, const Interval& other);
-		bool Spans(const Interval& interval, const Interval& other);
-
-		void BruteCheck(std::vector<std::pair<int, int>>& output, Box& box, Box& otherBox, int dimension);
-
+    
 		int ApproxMedian(BoxRange auto boxes, int dimension);
-
 		void OneWayScan(std::vector<std::pair<int, int>>& output, BoxRange auto leftBoxes, BoxRange auto rightBoxes, int dimension);
 		void ModifiedTwoWayScan(std::vector<std::pair<int, int>>& output, BoxRange auto leftBoxes, BoxRange auto rightBoxes, int dimension);
 		void Hybrid3(std::vector<std::pair<int, int>> &output, BoxRange auto leftBoxes, BoxRange auto rightBoxes, Interval interval, int dimension, int cutoff);
+#else
+    struct BoxRange
+    {
+        std::vector<Box>::iterator mBegin;
+        std::vector<Box>::iterator mEnd;
+        
+        std::vector<Box>::iterator begin() {return mBegin;}
+        std::vector<Box>::iterator end() { return mEnd;}
+        
+        bool empty() {
+            return mBegin == mEnd;
+        }
+        
+        size_t size() {
+            return std::distance(begin(), end());
+        }
+        
+        Box& operator[](int n)
+        {
+            auto it = begin();
+            std::advance(it, n);
+            return *it;
+        }
+    };
+    
+    int ApproxMedian(BoxRange  boxes, int dimension);
+    void OneWayScan(std::vector<std::pair<int, int>>& output, BoxRange  leftBoxes, BoxRange  rightBoxes, int dimension);
+    void ModifiedTwoWayScan(std::vector<std::pair<int, int>>& output, BoxRange  leftBoxes, BoxRange  rightBoxes, int dimension);
+    void Hybrid3(std::vector<std::pair<int, int>> &output, BoxRange  leftBoxes, BoxRange  rightBoxes, Interval interval, int dimension, int cutoff);
+    
+#endif
 	}
 
 	class BroadPhaseCollider
