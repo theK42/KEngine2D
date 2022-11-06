@@ -26,6 +26,7 @@ namespace KEngine2D
 		Point operator+(Point const & other);
 		Point operator-(Point const& other);
 		Point operator*(Point const& other);
+		Point operator*(double const& scalar);
 	};
 
 	float DotProduct(Point const & vec1, Point const & vec2);

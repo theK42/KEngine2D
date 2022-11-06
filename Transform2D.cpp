@@ -86,6 +86,11 @@ KEngine2D::Point KEngine2D::Point::operator*(Point const& other)
 	return{ x * other.x, y * other.y };
 }
 
+KEngine2D::Point KEngine2D::Point::operator*(double const& scalar)
+{
+	return { x * scalar, y * scalar };
+}
+
 float KEngine2D::DotProduct(Point const & vec1, Point const & vec2)
 {
 	return (vec1.x * vec2.x) + (vec1.y * vec2.y);
