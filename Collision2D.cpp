@@ -375,14 +375,6 @@ void KEngine2D::CollisionSystem::Update()
                 mDispatcher->HandleCollision({ left->GetHandle(), right->GetHandle(), collisionInfo.collisionPoint, collisionInfo.collisionNormal });
             }
         }
-        else if (right->Collidable(left))
-        {
-            auto collisionInfo = right->GetBounds()->Collides(*left->GetBounds());
-            if (collisionInfo.collides)
-            {
-                mDispatcher->HandleCollision({ right->GetHandle(), left->GetHandle(), collisionInfo.collisionPoint, collisionInfo.collisionNormal });
-            }
-        }
     }
 }
 
