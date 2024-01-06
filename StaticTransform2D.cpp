@@ -1,7 +1,15 @@
 #include "StaticTransform2D.h"
 #include "Tweening.h"
 #include <cmath>
+#ifdef __cpp_lib_math_constants
 #include <numbers>
+#else //Embarrassing workaround for Android
+namespace std {
+    namespace numbers {
+        const double pi = 3.14159265358979323846;
+    }
+}
+#endif
 #include <assert.h>
 
 const char KEngine2D::StaticTransform::MetaName[] = "KEngine2D.StaticTransform";

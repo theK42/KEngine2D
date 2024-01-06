@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
 #include <list>
+#ifdef __cpp_lib_ranges //Clang doesn't support this, Android doesn't even have the header
 #include <ranges>
+#endif
 #include "Boundaries2D.h"
 
 namespace KEngine2D {

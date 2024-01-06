@@ -1,6 +1,8 @@
 #include "Collision2D.h"
 #include <algorithm>
+#ifdef __cpp_lib_ranges
 #include <ranges>
+#endif
 #include <random>
 #include <set>
 
